@@ -249,7 +249,7 @@ public class DefaultTopologyScheduler implements IToplogyScheduler {
         } else if (type == ComponentAssignType.USE_OLD) {
             return new UseOldPreAssign();
         } else {
-            return new NormalPreAssign();
+            return new NormalPreAssign(nimbusConf);
         }
     }
 

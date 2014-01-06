@@ -12,6 +12,9 @@ import java.util.TreeMap;
 
 import org.apache.log4j.Logger;
 
+import backtype.storm.Config;
+
+import com.alibaba.jstorm.client.ConfigExtension;
 import com.alibaba.jstorm.daemon.supervisor.SupervisorInfo;
 import com.alibaba.jstorm.resource.ResourceAssignment;
 import com.alibaba.jstorm.resource.ResourceType;
@@ -22,10 +25,15 @@ import com.alibaba.jstorm.utils.JStormUtils;
 public class NormalPreAssign implements IPreassignTask {
     private static final Logger LOG  = Logger.getLogger(NormalPreAssign.class);
 
+    private Map nimbusConf;
     
+    
+    NormalPreAssign(Map nimbusConf) {
+        this.nimbusConf = nimbusConf;
+    }
 
-
-    private Map<Integer, Set<ResourceType>> getWeightTree(DefaultTopologyAssignContext defaultContext) {
+    private Map<Integer, Set<ResourceType>> getWeightTree(
+        DefaultTopologyAssignContext defaultContext) {
         Map<Integer, Set<ResourceType>> weight = new TreeMap<Integer, Set<ResourceType>>(
             new Comparator<Integer>() {
 
@@ -117,6 +125,9 @@ public class NormalPreAssign implements IPreassignTask {
                 for (String sid : supervisors) {
                     SupervisorInfo supervisorInfo = defaultContext.getCluster().get(sid);
                     Integer taskNum = newSupervisorTaskNum.get(sid);
+                    if (taskNum == null) {
+                        taskNum = Integer.valueOf(0);
+                    }
                     Integer left = getLeftSlot(supervisorInfo, type, taskAllocResource, taskNum);
 
                     Integer leftSum = supervisorLeftSlots.get(sid);
@@ -136,15 +147,17 @@ public class NormalPreAssign implements IPreassignTask {
     }
 
     private Set<String> selectMost(Map<String, Integer> slotNums, Set<String> supervisorIds) {
-        Set<String> ret = new HashSet<String>();
+        Set<String> ret = null;
         Integer max = Integer.MIN_VALUE;
 
         for (String sid : supervisorIds) {
             Integer left = slotNums.get(sid);
 
             if (left > max) {
+                max = left;
                 ret = new HashSet<String>();
                 ret.add(sid);
+                
             } else if (left == max) {
                 ret.add(sid);
             }
@@ -155,8 +168,7 @@ public class NormalPreAssign implements IPreassignTask {
 
     private String selectOne(Map<Integer, Map<String, Integer>> weightResourceMap,
                              Set<String> supervisorIds) {
-        String ret = null;
-
+        
         Set<String> leastSet = supervisorIds;
         for (Entry<Integer, Map<String, Integer>> entry : weightResourceMap.entrySet()) {
             if (leastSet.size() == 1) {
@@ -269,15 +281,24 @@ public class NormalPreAssign implements IPreassignTask {
         return bestSupervisor;
 
     }
+    
+    private boolean isSelectByLevel(Map topologyConf) {
+        Map tmpConf = new HashMap();
+        tmpConf.putAll(nimbusConf);
+        tmpConf.putAll(topologyConf);
+        
+        return ConfigExtension.isTopologyAssignSupervisorBylevel(
+                tmpConf);
+    }
 
     private String selectBestSupervisor(DefaultTopologyAssignContext defaultContext,
                                         TaskAllocResource taskAllocResource,
                                         Set<String> supervisors,
                                         Map<Integer, ResourceAssignment> newAssigns) {
 
-        boolean isSimple = true;
-
-        if (isSimple == true) {
+        boolean isByLevel = isSelectByLevel(defaultContext.getStormConf());
+        
+        if (isByLevel == false ) {
             return selectBestSupervisorByWeight(defaultContext, taskAllocResource, supervisors,
                 newAssigns);
         } else {

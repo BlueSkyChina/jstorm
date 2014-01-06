@@ -379,6 +379,7 @@ public class UIUtils {
                     diskNum++;
                 }
                 ports.add(task.get_port());
+                workers.add(new WorkerSlot(task.get_host(), task.get_port()));
                 
             }
         }
@@ -401,7 +402,7 @@ public class UIUtils {
         topologySumm.setNumCpu(String.valueOf(cpuNum));
         topologySumm.setNumMem(String.valueOf(memNum));
         topologySumm.setNumDisk(String.valueOf(diskNum));
-        topologySumm.setNumWorkers(String.valueOf(ports.size()));
+        topologySumm.setNumWorkers(String.valueOf(workers.size()));
         topologySumm.setNumTasks(String.valueOf(taskNum));
         
         tsumm.add(topologySumm);

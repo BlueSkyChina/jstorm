@@ -189,7 +189,7 @@ public class Common {
         
         Integer ackerNum = JStormUtils.parseInt(totalStormConf
                 .get(Config.TOPOLOGY_ACKER_EXECUTORS));
-        if (ackerNum == null || ackerNum < 0) {
+        if (ackerNum != null && ackerNum < 0) {
             String errMsg = "Invalide Config.TOPOLOGY_ACKERS in configuration of "
                     + topologyid;
             throw new InvalidParameterException(errMsg);
@@ -369,7 +369,7 @@ public class Common {
         
         String key = Config.TOPOLOGY_ACKER_EXECUTORS;
         
-        Integer ackercount = JStormUtils.parseInt(storm_conf.get(key));
+        Integer ackercount = JStormUtils.parseInt(storm_conf.get(key), 0);
         
         add_acker(ackercount, ret);
         

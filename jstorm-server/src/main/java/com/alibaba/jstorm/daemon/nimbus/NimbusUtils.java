@@ -150,12 +150,17 @@ public class NimbusUtils {
 
         Map kryoRegisterMap = mapifySerializations(kryoRegisterList);
         List decoratorList = JStormUtils.distinctList(kryoDecoratorList);
+        
+        Integer ackerNum = JStormUtils.parseInt(totalConf.get(Config.TOPOLOGY_ACKER_EXECUTORS));
+        if (ackerNum == null) {
+            ackerNum = Integer.valueOf(0);
+        }
 
         Map rtn = new HashMap();
         rtn.putAll(stormConf);
         rtn.put(Config.TOPOLOGY_KRYO_DECORATORS, decoratorList);
         rtn.put(Config.TOPOLOGY_KRYO_REGISTER, kryoRegisterMap);
-        rtn.put(Config.TOPOLOGY_ACKER_EXECUTORS, totalConf.get(Config.TOPOLOGY_ACKER_EXECUTORS));
+        rtn.put(Config.TOPOLOGY_ACKER_EXECUTORS,  ackerNum );
         rtn.put(Config.TOPOLOGY_MAX_TASK_PARALLELISM,
             totalConf.get(Config.TOPOLOGY_MAX_TASK_PARALLELISM));
         return rtn;

@@ -238,10 +238,10 @@ public class ConfigExtension {
     protected static final String TOPOLOGY_MEM_WEIGHT  = "topology.memory.weight";
     protected static final String TOPOLOGY_PORT_WEIGHT = "topology.port.weight";
 
-    public static final int       DEFAULT_DISK_WEIGHT  = 3;
-    public static final int       DEFAULT_CPU_WEIGHT   = 1;
+    public static final int       DEFAULT_DISK_WEIGHT  = 5;
+    public static final int       DEFAULT_CPU_WEIGHT   = 3;
     public static final int       DEFAULT_MEM_WEIGHT   = 1;
-    public static final int       DEFAULT_PORT_WEIGHT  = 1;
+    public static final int       DEFAULT_PORT_WEIGHT  = 2;
 
     public static void setTopologyDiskWeight(Map conf, int weight) {
         conf.put(TOPOLOGY_DISK_WEIGHT, Integer.valueOf(weight));
@@ -275,4 +275,14 @@ public class ConfigExtension {
         return JStormUtils.parseInt(conf.get(TOPOLOGY_PORT_WEIGHT), DEFAULT_PORT_WEIGHT);
     }
 
+    
+    protected static final String TOPOLOGY_ASSIGN_SUPERVISOR_BYLEVEL = "topology.assign.supervisor.bylevel";
+
+    public static boolean isTopologyAssignSupervisorBylevel(Map conf) {
+        return JStormUtils.parseBoolean(conf.get(TOPOLOGY_ASSIGN_SUPERVISOR_BYLEVEL), true);
+    }
+    
+    public static void setTopologyAssignSupervisorBylevel(Map conf, boolean enable) {
+        conf.put(TOPOLOGY_ASSIGN_SUPERVISOR_BYLEVEL, Boolean.valueOf(enable));
+    }
 }
